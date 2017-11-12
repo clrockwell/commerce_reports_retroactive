@@ -103,7 +103,7 @@ class GenerateReportsForm extends FormBase {
         ]
       ];
     }
-    $order_ids = $this->connection->query($query, $params)->fetchAllKeyed();
+    $order_ids = $this->connection->query($query, $params)->fetchAllAssoc('order_id');
     
     if (!empty($order_ids)) {
       $batch = array(
