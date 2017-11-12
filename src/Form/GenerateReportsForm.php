@@ -84,14 +84,27 @@ class GenerateReportsForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $earliest_report_order_id = $this->connection->query("SELECT MIN(order_id) FROM {commerce_order_report}")->fetchField();
-    $order_ids = $this->connection->query("SELECT order_id FROM {commerce_order} WHERE order_id < :report_order_id AND state IN (:states[])", [
-      ':report_order_id' => $earliest_report_order_id,
-      ':states[]' => [
-        'fulfillment',
-        'completed',
-      ],
-    ])->fetchAllKeyed();
-
+    if ($earliest_report_order_id) {
+      $query = "SELECT order_id FROM {commerce_order} WHERE order_id < :report_order_id AND state IN (:states[])";
+      $params = [
+        ':report_order_id' => $earliest_report_order_id,
+        ':states[]' => [
+          'fulfillment',
+          'completed',
+        ]
+      ];
+    }
+    else {
+      $query = "SELECT order_id FROM {commerce_order} WHERE state IN (:states[])";
+      $params = [
+        ':states[]' => [
+          'fulfillment',
+          'completed',
+        ]
+      ];
+    }
+    $order_ids = $this->connection->query($query, $params)->fetchAllKeyed();
+    
     if (!empty($order_ids)) {
       $batch = array(
         'title' => t('Generating Order Reports...'),
