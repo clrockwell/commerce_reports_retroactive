@@ -1,0 +1,7 @@
+name: Commerce Reports Retroactive
+description: Retroactively generate reports for orders
+package: Commerce (contrib)
+type: module
+core: 8.x
+dependencies:
+  - commerce_reports

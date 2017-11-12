@@ -1,0 +1,9 @@
+
+commerce_reports_retroactive.generate_reports_form:
+  path: 'admin/commerce/reports/generate'
+  defaults:
+    _form: '\Drupal\commerce_reports_retroactive\Form\GenerateReportsForm'
+    _title: 'GenerateReportsForm'
+  requirements:
+    _access: 'TRUE'
+  
