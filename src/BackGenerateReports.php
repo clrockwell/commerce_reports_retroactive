@@ -23,32 +23,23 @@ class BackGenerateReports {
     /** @var OrderReportTypeInterface[] $plugin_types */
     $plugin_types = $plugin_manager->getDefinitions();
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
-    // Create coupons until the multipass batch size is reached.
-    // Or we run out of coupons to create.
-    $counter = 0;
-    // @TODO how about CouponBatchFormInterface constants?
-    $limit = $remaining < 50 ? $remaining : 50;
-    while ($counter < $limit) {
 
-      $context['message'] = t('Creating order report @n of @max', array('@n' => $progress, '@max' => $max));
-      $to_use = array_slice($order_ids, 0, 100, TRUE);
-      $orders = \Drupal::entityTypeManager()
-        ->getStorage('commerce_order')
-        ->loadMultiple($to_use);
+    $context['message'] = t('Creating order report @n of @max', array('@n' => $progress, '@max' => $max));
 
-      /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
-      foreach ($orders as $order) {
-        foreach ($plugin_types as $plugin_type) {
-          if (!in_array($plugin_type['id'], $plugins)) {
-            continue;
-          }
-          $instance = $plugin_manager->createInstance($plugin_type['id'], []);
-          $instance->generateReport($order);
-          $results[$order->id()][] = $instance->getLabel();
+    $orders = \Drupal::entityTypeManager()
+      ->getStorage('commerce_order')
+      ->loadMultiple($order_ids);
+
+    /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
+    foreach ($orders as $order) {
+      foreach ($plugin_types as $plugin_type) {
+        if (!in_array($plugin_type['id'], $plugins)) {
+          continue;
         }
+        $instance = $plugin_manager->createInstance($plugin_type['id'], []);
+        $instance->generateReport($order);
+        $results[$order->id()][] = $instance->getLabel();
       }
-      $counter++;
-      $progress++;
     }
 
     // Update progress.
